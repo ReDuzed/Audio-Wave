@@ -29,40 +29,47 @@ namespace AudioWave
     public partial class MainWindow : Window
     {
         public static MainWindow Instance;
+        internal Wave wave;
+        internal SideWindow side;
         public MainWindow()
         {
             InitializeComponent();
             Instance = this;
-            var wave = new Wave();
+            wave = new Wave();
+            side = new SideWindow();
+            side.Show();
         }
     }
     public class Wave
     {
-        private AudioFileReader reader;
+        internal AudioFileReader reader;
         private float[] data;
         private MainWindow Window;
-        private WasapiOut audioOut;
+        internal WasapiOut audioOut;
         public Wave()
         {
             Window = MainWindow.Instance;
-            Init();
             Display();
         }
-        private void Init()
+        public void Init(string file)
         {
-            reader = new AudioFileReader("song.wav");
+            reader = new AudioFileReader(file);
             data = Buffer();
+            audioOut.Dispose();
             audioOut = new WasapiOut();
+            Window.wave.audioOut.PlaybackStopped += MainWindow.Instance.side.On_PlaybackStopped;
             audioOut.Init(reader);
             audioOut.Play();
         }
+
         Action method;
         private void Display()
         {
             method = delegate ()
             {
                 Thread.Sleep(1000 / 50);
-                GenerateImage();
+                if (reader != null && audioOut.PlaybackState == PlaybackState.Playing)
+                    GenerateImage();
                 MainWindow.Instance.graph.Dispatcher.BeginInvoke(method, System.Windows.Threading.DispatcherPriority.Background);
             };
             MainWindow.Instance.graph.Dispatcher.BeginInvoke(method, System.Windows.Threading.DispatcherPriority.Background);
