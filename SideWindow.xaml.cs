@@ -12,7 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
+
 
 namespace AudioWave
 {
@@ -21,6 +23,7 @@ namespace AudioWave
     /// </summary>
     public partial class SideWindow : Window
     {
+        public static SideWindow Instance;
         private MainWindow Window;
         private int current;
         private bool playing;
@@ -28,8 +31,9 @@ namespace AudioWave
         public SideWindow()
         {
             InitializeComponent();
+            Instance = this;
             Window = MainWindow.Instance;
-            Window.wave.audioOut = new WasapiOut();
+            Window.wave.audioOut = new WasapiOut(MainWindow.Instance.wave.defaultOutput, AudioClientShareMode.Shared, false, 0);
         }
         public void On_PlaybackStopped(object sender, StoppedEventArgs e)
         {
@@ -44,7 +48,7 @@ namespace AudioWave
                 current++;
                 if (current < Playlist.Count)
                 {
-                    Window.wave.Init(Playlist[current]);
+                    Window.wave.Init(Playlist[current], Window.wave.defaultOutput);
                 }
             }
         }
@@ -97,7 +101,7 @@ namespace AudioWave
             current = playlist.SelectedIndex;
             if (playlist.SelectedIndex != -1)
             {
-                Window.wave.Init(Playlist[playlist.SelectedIndex]);
+                Window.wave.Init(Playlist[playlist.SelectedIndex], Window.wave.defaultOutput);
                 playlist.SelectedIndex = -1;
             }
             else
@@ -106,11 +110,14 @@ namespace AudioWave
             }
         }
 
-        private void On_Stop(object sender, MouseButtonEventArgs e)
+        public void On_Stop(object sender, MouseButtonEventArgs e)
         {
             playing = false;
-            Window.wave.audioOut.Stop();
-            Window.wave.reader.Seek(0, System.IO.SeekOrigin.Begin);
+            if (Window.wave != null && Window.wave.reader != null)
+            {
+                Window.wave.audioOut.Stop();
+                Window.wave.reader.Seek(0, System.IO.SeekOrigin.Begin);
+            }
         }
 
         private void On_Pause(object sender, MouseButtonEventArgs e)

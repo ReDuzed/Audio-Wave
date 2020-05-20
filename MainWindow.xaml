@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AudioWave"
         mc:Ignorable="d"
-        Title="Audio Wave" Height="477" Width="803" ResizeMode="CanMinimize" SizeToContent="WidthAndHeight">
+        Title="Audio Wave" Height="477" Width="803" ResizeMode="CanMinimize" SizeToContent="WidthAndHeight" Closing="On_Closing">
     <Grid>
         <Rectangle Fill="Black" HorizontalAlignment="Left" Height="450" Stroke="Black" VerticalAlignment="Top" Width="800"/>
         <Image x:Name="graph" HorizontalAlignment="Left" Height="450" VerticalAlignment="Top" Width="800"/>
